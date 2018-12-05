@@ -1,5 +1,6 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
+import DebounceInput from 'react-debounce-input'
 import {search} from './BooksAPI'
 import Book from './Book'
 
@@ -10,7 +11,6 @@ class Search extends React.Component {
         let query = e.target.value
         
         if(query) {
-            console.log(query)
             search(query).then(res => {
                 if(!res.error) {
                     this.props.updateSearchResults(res)
@@ -44,14 +44,17 @@ class Search extends React.Component {
             <div className="search-books-bar">
             <Link className="close-search" to='/'>Close</Link>
             <div className="search-books-input-wrapper">
-                <input type="text" placeholder="Search by title or author" onChange={this.search}/>
+                <DebounceInput 
+                    type="text"
+                    placeholder="Search by title or author"
+                    onChange={this.search}
+                    debounceTimeout={300}/>    
             </div>
             </div>
             <div className="search-books-results">
             <ol className="books-grid">
                 {
                     this.props.searchResults.map(item => {
-                        console.log('item shelf', item.shelf)
                         return <Book key={item.id} 
                                      book={item} 
                                      shelf={this.findBookShelf(item)} 
