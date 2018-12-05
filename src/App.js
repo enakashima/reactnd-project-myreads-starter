@@ -3,33 +3,61 @@ import React from 'react'
 import { Route } from 'react-router-dom'
 import './App.css'
 
+import { getAll, update } from './BooksAPI'
 import BookShelf from './Bookshelf'
 import Search from './Search'
 
 class BooksApp extends React.Component {
-  state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    showSearchPage: false
+  
+  constructor(props) {
+    super(props)
+    this.loadBookshelf()
   }
 
-  showSearchPage = () => {
-    console.log('hiding search', this)
-    this.setState({ showSearchPage: false })
+  state = {
+    booksOnShelves: [],
+    searchResults: [],
   }
   
+  loadBookshelf = () => {
+    getAll().then(res => {
+      this.updateBooksOnShelves(res)
+    })
+  }
+
+  updateBook = (book , toShelf) => {
+    console.log('moving', book, toShelf)
+    update(book, toShelf)
+      .then(() => {
+        this.loadBookshelf()
+      })
+      .catch(err => {
+          console.error(err)
+      })
+  }
+
+  updateBooksOnShelves = (books) => {
+    this.setState({booksOnShelves: books})
+  }
+
+  updateSearchResults = (results) => {
+    this.setState({searchResults: results})
+  }
+
   render() {
     return (
       <div className="app">
         <Route exact path='/' render={() => (
-          <BookShelf /> 
+          <BookShelf books={this.state.booksOnShelves} 
+                     updateBooksOnShelves={this.updateBooksOnShelves}
+                     updateBook={this.updateBook}/> 
         )}/>
         <Route exact path='/search' render={() => (
-          <Search />
+          <Search searchResults={this.state.searchResults} 
+                  updateSearchResults={this.updateSearchResults} 
+                  booksOnShelves={this.state.booksOnShelves} 
+                  updateBooksOnShelves={this.updateBooksOnShelves}
+                  updateBook={this.updateBook}/>
         )}/>
       </div>
     )

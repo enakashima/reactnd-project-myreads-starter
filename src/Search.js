@@ -5,30 +5,37 @@ import Book from './Book'
 
 class Search extends React.Component {
 
-    state={
-        results: []
-    }
-
-    updateResults = null
 
     search = (e) => {
         let query = e.target.value
-        clearTimeout(this.updateResults);
-        this.updateResults = setTimeout(() => {
-            if(query) {
-                console.log(query)
-                search(query).then(res => {
-                    console.log(res)
-                    if(!res.error) {
-                        this.setState({results: res})
-                    }else {
-                        this.setState({results: []})
-                    }
-                })
-            }else {
-                this.setState({results: []})
-            }
-        }, 500)
+        
+        if(query) {
+            console.log(query)
+            search(query).then(res => {
+                if(!res.error) {
+                    this.props.updateSearchResults(res)
+                }else {
+                    this.props.updateSearchResults([])
+                }
+            })
+        }else {
+            this.props.updateSearchResults([])
+        }
+    }
+
+    componentWillUnmount() {
+        this.props.updateSearchResults([])
+    }
+
+    findBookShelf(book) {
+        let bookOnShelf = this.props.booksOnShelves.find(bookOnShelf => {
+            return book.id === bookOnShelf.id
+        }) 
+        if(bookOnShelf) {
+            return bookOnShelf.shelf
+        }else {
+            return 'none'
+        }
     }
 
     render() {
@@ -43,8 +50,12 @@ class Search extends React.Component {
             <div className="search-books-results">
             <ol className="books-grid">
                 {
-                    this.state.results.map(item => {
-                        return <Book key={item.id} book={item} />
+                    this.props.searchResults.map(item => {
+                        console.log('item shelf', item.shelf)
+                        return <Book key={item.id} 
+                                     book={item} 
+                                     shelf={this.findBookShelf(item)} 
+                                     updateBook={this.props.updateBook}/>
                     })
                 }
             </ol>

@@ -1,22 +1,11 @@
 import React from 'react'
 
-import { update } from './BooksAPI'
-
 class Book extends React.Component {
 
     updateBook = (e) => {
-        console.log('Updating shelf')
+        console.log('Updating book')
         let value = e.target.value
-        update(this.props.book, value)
-            .then(res => {
-                console.log(res)
-                if(this.props.moveToAnotherShelf) {
-                    this.props.moveToAnotherShelf(this.props.book, this.props.book.shelf, value)
-                }
-            })
-            .catch(err => {
-                console.error(err)
-            })
+        this.props.updateBook(this.props.book, value)
     }
 
     render(){
